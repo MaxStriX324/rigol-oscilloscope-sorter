@@ -790,7 +790,7 @@ def signal_channels(headers: Sequence[str]) -> List[str]:
     index logic kept only CH* and silently omitted digital channels, even
     when all samples were present in the XLSX.
     """
-    return [h for h in headers if re.fullmatch(r"(?:CH\\d+V?|D\\d+)", h.strip(), re.IGNORECASE)]
+    return [h for h in headers if re.fullmatch(r"(?:CH\d+V?|D\d+)", h.strip(), re.IGNORECASE)]
 
 
 def append_index(root: Path, row: Dict[str, str], dry_run: bool = False) -> None:
