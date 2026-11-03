@@ -783,6 +783,16 @@ def convert_bin_to_xlsx(path: Path, out_dir: Path, base_name: str, dry_run: bool
     return outputs, bin_data
 
 
+def signal_channels(headers: Sequence[str]) -> List[str]:
+    """Return physical analog and digital channel names for the archive index.
+
+    CSV exports can include CH1V..CH4V together with D0..D15. The previous
+    index logic kept only CH* and silently omitted digital channels, even
+    when all samples were present in the XLSX.
+    """
+    return [h for h in headers if re.fullmatch(r"(?:CH\d+V?|D\d+)", h.strip(), re.IGNORECASE)]
+
+
 def append_index(root: Path, row: Dict[str, str], dry_run: bool = False) -> None:
     logs = root / LOGS_DIR_NAME
     logs.mkdir(exist_ok=True)
@@ -837,7 +847,7 @@ def process_group(root: Path, group: FileGroup, number: int, dry_run: bool = Fal
             outputs.extend(csv_outputs)
             data_type = "CSV"
             points = str(info.data_rows)
-            channels = ",".join([h for h in info.headers if h.upper().startswith("CH")])
+            channels = ",".join(signal_channels(info.headers))
             if info.data_rows > MAX_ROWS_FOR_SPLIT_XLSX:
                 note = "large CSV: preview XLSX created; full CSV archived"
 
@@ -847,7 +857,7 @@ def process_group(root: Path, group: FileGroup, number: int, dry_run: bool = Fal
             outputs.extend(bin_outputs)
             data_type = "BIN" if not data_type else data_type + "+BIN"
             points = str(bin_info.rows) if not points else points
-            channels = ",".join([h for h in bin_info.headers if h.upper().startswith("CH")]) or channels
+            channels = ",".join(signal_channels(bin_info.headers)) or channels
             if bin_info.rows > MAX_ROWS_FOR_SPLIT_XLSX:
                 note = "large BIN: preview XLSX created; full BIN archived"
 
