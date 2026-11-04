@@ -78,8 +78,8 @@ function Update-Checkout {
     throw 'Local changes are present. Save/commit/stash them first; update.bat will not overwrite them.'
   }
   Write-Host ('Fetching ' + $Repository + ' (' + $Branch + ') ...')
-  Run-Git @('-C',$Directory,'fetch','--prune','origin',$Branch)
-  Run-Git @('-C',$Directory,'merge','--ff-only','FETCH_HEAD')
+  Run-Git -Arguments @('-C',$Directory,'fetch','--prune','origin',$Branch)
+  Run-Git -Arguments @('-C',$Directory,'merge','--ff-only','FETCH_HEAD')
   Write-Host 'Git update completed.' -ForegroundColor Green
 }
 
@@ -129,7 +129,7 @@ try {
       Update-Checkout $workTree
     } else {
       Write-Host ('Creating a new Git clone: ' + $workTree)
-      Run-Git @('clone','--branch',$Branch,'--single-branch','--',$cloneUrl,$workTree)
+      Run-Git -Arguments @('clone','--branch',$Branch,'--single-branch','--',$cloneUrl,$workTree)
       Check-Remote $workTree
     }
     if (-not $InstalledApp) {
