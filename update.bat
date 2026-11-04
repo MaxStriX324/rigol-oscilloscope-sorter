@@ -7,6 +7,11 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+if not exist "%~dp0scripts\update.ps1" (
+  echo ERROR: scripts\update.ps1 is missing. Download the complete repository.
+  pause
+  exit /b 1
+)
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\update.ps1" -Repository "MaxStriX324/rigol-oscilloscope-sorter" -Branch "main" -Installer "install.cmd"
 set "RC=%ERRORLEVEL%"
 if not "%RC%"=="0" echo Update did not complete. Review the error above.
