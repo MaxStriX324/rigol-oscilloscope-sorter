@@ -12,11 +12,18 @@ REM set "RIGOL_ROOT=C:\RigolData\DHO814"
 REM 3. Optional: run_rigol_watch.cmd "C:\RigolData\DHO924S"
 if not "%~1"=="" set "RIGOL_ROOT=%~1"
 
-if not exist "%~dp0.venv\Scripts\python.exe" (
-    echo ERROR: Python environment not installed. Run install.cmd first.
+if exist "%~dp0.venv\Scripts\python.exe" (
+    "%~dp0.venv\Scripts\python.exe" -c "import openpyxl" >nul 2>nul
+    if not errorlevel 1 goto :venv_ready
+)
+echo Python environment is missing or broken. Repairing...
+call "%~dp0install.cmd" /quiet
+if errorlevel 1 (
+    echo ERROR: Rigol Python environment could not be repaired.
     pause
     exit /b 3
 )
+:venv_ready
 if not exist "%~dp0rigol_sort.py" (
     echo ERROR: rigol_sort.py is missing next to this CMD.
     pause
