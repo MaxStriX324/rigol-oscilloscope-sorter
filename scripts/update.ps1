@@ -17,7 +17,20 @@ function Find-Git {
   foreach($path in $paths) {
     if (Test-Path -LiteralPath $path -PathType Leaf) { return $path }
   }
-  throw 'Git for Windows is not installed. Install it from https://git-scm.com/downloads/win, then rerun update.bat.'
+  $winget=Get-Command winget.exe -ErrorAction SilentlyContinue
+  if ($winget) {
+    Write-Host 'Git is missing. Trying to install Git for the current Windows user...'
+    & $winget.Source install --id Git.Git --exact --source winget --scope user --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0) {
+      Write-Warning ('winget Git installation exited with code ' + $LASTEXITCODE)
+    }
+    foreach($path in $paths) {
+      if (Test-Path -LiteralPath $path -PathType Leaf) { return $path }
+    }
+    $cmd=Get-Command git.exe -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+  }
+  throw 'Git for Windows is not available. Install from https://git-scm.com/downloads/win and rerun update.bat.'
 }
 
 function Run-Git {
