@@ -7,11 +7,18 @@ REM Default: folder next to this launcher; optional argument overrides it.
 set "RIGOL_ROOT=%~dp0"
 REM set "RIGOL_ROOT=C:\RigolData\DHO814"
 if not "%~1"=="" set "RIGOL_ROOT=%~1"
-if not exist "%~dp0.venv\Scripts\python.exe" (
-    echo ERROR: Run install.cmd first.
+if exist "%~dp0.venv\Scripts\python.exe" (
+    "%~dp0.venv\Scripts\python.exe" -c "import openpyxl" >nul 2>nul
+    if not errorlevel 1 goto :venv_ready
+)
+echo Python environment is missing or broken. Repairing...
+call "%~dp0install.cmd" /quiet
+if errorlevel 1 (
+    echo ERROR: Rigol Python environment could not be repaired.
     pause
     exit /b 3
 )
+:venv_ready
 if not exist "%~dp0rigol_sort.py" (
     echo ERROR: rigol_sort.py not found.
     pause
